@@ -100,6 +100,7 @@ typedef enum {
 - (void)acquireOAuthAccessTokenWithPath:(NSString *)path
                            requestToken:(AFOAuth1Token *)requestToken
                            accessMethod:(NSString *)accessMethod
+                             parameters:(NSDictionary *)parameters
                                 success:(void (^)(AFOAuth1Token *accessToken, id responseObject))success
                                 failure:(void (^)(NSError *error))failure;
 

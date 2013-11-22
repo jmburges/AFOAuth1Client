@@ -285,7 +285,7 @@ static NSDictionary * AFKeychainQueryDictionaryWithIdentifier(NSString *identifi
 
             currentRequestToken.verifier = [AFParametersFromQueryString([url query]) valueForKey:@"oauth_verifier"];
 
-            [self acquireOAuthAccessTokenWithPath:accessTokenPath requestToken:currentRequestToken accessMethod:accessMethod success:^(AFOAuth1Token * accessToken, id responseObject) {
+            [self acquireOAuthAccessTokenWithPath:accessTokenPath requestToken:currentRequestToken accessMethod:accessMethod parameters:nil success:^(AFOAuth1Token * accessToken, id responseObject) {
                 self.applicationLaunchNotificationObserver = nil;
                 if (accessToken) {
                     self.accessToken = accessToken;
@@ -355,15 +355,19 @@ static NSDictionary * AFKeychainQueryDictionaryWithIdentifier(NSString *identifi
 - (void)acquireOAuthAccessTokenWithPath:(NSString *)path
                            requestToken:(AFOAuth1Token *)requestToken
                            accessMethod:(NSString *)accessMethod
+                             parameters:(NSDictionary*)additionalParameters
                                 success:(void (^)(AFOAuth1Token *accessToken, id responseObject))success
                                 failure:(void (^)(NSError *error))failure
 {
-    if (requestToken.key && requestToken.verifier) {
+    if (requestToken.key) {
         self.accessToken = requestToken;
         
         NSMutableDictionary *parameters = [[self OAuthParameters] mutableCopy];
         parameters[@"oauth_token"] = requestToken.key;
-        parameters[@"oauth_verifier"] = requestToken.verifier;
+        if (requestToken.verifier) {
+            parameters[@"oauth_verifier"] = requestToken.verifier;
+        }
+        [parameters addEntriesFromDictionary:additionalParameters];
         
         NSMutableURLRequest *request = [self requestWithMethod:accessMethod path:path parameters:parameters];
         
